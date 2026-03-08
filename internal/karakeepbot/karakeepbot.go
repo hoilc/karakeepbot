@@ -221,8 +221,10 @@ func getForwardSourceURL(msg TelegramMessage) string {
 
 	if msg.ForwardOrigin.MessageOriginChannel != nil {
 		origin := msg.ForwardOrigin.MessageOriginChannel
-		if origin.Chat.Type == "channel" && origin.Chat.Username != "" {
-			return fmt.Sprintf("https://t.me/%s/%d", origin.Chat.Username, origin.MessageID)
+		if origin.Chat.Type == "channel" {
+			if origin.Chat.Username != "" {
+				return fmt.Sprintf("https://t.me/%s/%d", origin.Chat.Username, origin.MessageID)
+			}
 		}
 	}
 
@@ -232,6 +234,9 @@ func getForwardSourceURL(msg TelegramMessage) string {
 // parseMessage parses the incoming Telegram message and returns the corresponding Bookmark type.
 func (kb KarakeepBot) parseMessage(ctx context.Context, msg TelegramMessage) (BookmarkType, error) {
 	sourceURL := getForwardSourceURL(msg)
+	if sourceURL != "" {
+		kb.logger.Debug("Detected forwarded message", "source_url", sourceURL)
+	}
 
 	switch {
 	case msg.Photo != nil:
@@ -295,6 +300,11 @@ func (kb *KarakeepBot) handlePhotoMessage(ctx context.Context, msg TelegramMessa
 
 	// Get note from caption
 	note := strings.TrimSpace(msg.Caption)
+
+	// Log source URL for debugging
+	if sourceURL != "" {
+		kb.logger.Debug("Creating AssetBookmark with source URL", "source_url", sourceURL)
+	}
 
 	return NewAssetBookmark(asset.AssetId, ImageAssetType, note, sourceURL), nil
 }
