@@ -57,13 +57,13 @@ archives:
 kos:
   - build: binary
     repositories:
-      - ghcr.io/madh93/karakeepbot
-      - madh93/karakeepbot
+      - "ghcr.io/{{ .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}"
+      - "{{ .Env.GITHUB_REPOSITORY_OWNER }}/{{ .ProjectName }}"
     tags:
       - "{{ .Version }}"
       - latest
     labels:
-      org.opencontainers.image.authors: Madh93
+      org.opencontainers.image.authors: "{{ .Env.GITHUB_REPOSITORY_OWNER }}"
       org.opencontainers.image.created: "{{ .Date }}"
       org.opencontainers.image.description: Telegram Bot for saving bookmarks to Karakeep
       org.opencontainers.image.licenses: MIT
@@ -71,9 +71,9 @@ kos:
       org.opencontainers.image.revision: "{{ .FullCommit }}"
       org.opencontainers.image.title: "{{ .ProjectName }}"
       org.opencontainers.image.url: "{{ .GitURL }}"
-      org.opencontainers.image.vendor: Madh93
+      org.opencontainers.image.vendor: "{{ .Env.GITHUB_REPOSITORY_OWNER }}"
       org.opencontainers.image.version: "{{ .Version }}"
-    sbom: none      
+    sbom: none
     bare: true
     preserve_import_paths: false
     platforms:
@@ -97,7 +97,7 @@ changelog:
 release:
   draft: true
   github:
-    owner: Madh93
+    owner: "{{ .Env.GITHUB_REPOSITORY_OWNER }}"
     name: karakeepbot
   footer: >-
 
