@@ -184,7 +184,7 @@ func (k Karakeep) AddBookmarkToList(ctx context.Context, listID string, bookmark
 		return err
 	}
 
-	if response.StatusCode() != http.StatusOK {
+	if response.StatusCode() != http.StatusOK && response.StatusCode() != http.StatusNoContent {
 		return fmt.Errorf("received HTTP status: %s", response.Status())
 	}
 
