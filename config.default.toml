@@ -32,6 +32,10 @@ token = "<YOUR_KARAKEEP_API_KEY>"
 # Interval (in seconds) before retrying tagging status
 interval = 5
 
+# List ID to add bookmarks to (optional). If set, bookmarks will be automatically
+# added to this list after creation. Leave empty to disable this feature.
+list_id = ""
+
 # ------------------------------------------
 # Logging configuration
 # ------------------------------------------

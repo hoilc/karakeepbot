@@ -12,6 +12,7 @@ type KarakeepConfig struct {
 	URL      string        `koanf:"url"`      // Base URL of the Karakeep server
 	Token    secret.String `koanf:"token"`    // Karakeep API key
 	Interval int           `koanf:"interval"` // Interval (in seconds) before retrying tagging status
+	ListID   string        `koanf:"list_id"`  // List ID to add bookmarks to (optional)
 }
 
 // Validate checks if the Karakeep configuration is valid.

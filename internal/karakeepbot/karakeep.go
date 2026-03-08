@@ -176,3 +176,17 @@ func (k Karakeep) CreateAsset(ctx context.Context, filePath string, mimeType str
 	asset := KarakeepAsset(*response.JSON200)
 	return &asset, nil
 }
+
+// AddBookmarkToList adds a bookmark to a list.
+func (k Karakeep) AddBookmarkToList(ctx context.Context, listID string, bookmarkID string) error {
+	response, err := k.PutListsListIdBookmarksBookmarkIdWithResponse(ctx, listID, bookmarkID)
+	if err != nil {
+		return err
+	}
+
+	if response.StatusCode() != http.StatusOK {
+		return fmt.Errorf("received HTTP status: %s", response.Status())
+	}
+
+	return nil
+}

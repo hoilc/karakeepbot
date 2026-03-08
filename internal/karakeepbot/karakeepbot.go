@@ -33,6 +33,7 @@ type KarakeepBot struct {
 	allowlist      []int64
 	threads        []int
 	waitInterval   int
+	listID         string
 }
 
 // New creates a new KarakeepBot instance, initializing the Karakeep and Telegram
@@ -65,6 +66,7 @@ func New(logger *logging.Logger, config *config.Config) *KarakeepBot {
 		allowlist:      config.Telegram.Allowlist,
 		threads:        config.Telegram.Threads,
 		waitInterval:   config.Karakeep.Interval,
+		listID:         config.Karakeep.ListID,
 		fileProcessor:  fileProcessor,
 		fileValidators: fileValidators,
 		logger:         logger,
@@ -124,6 +126,16 @@ func (kb KarakeepBot) handler(ctx context.Context, _ *Bot, update *TelegramUpdat
 		return
 	}
 	kb.logger.Info("Created bookmark", bookmark.Attrs()...)
+
+	// Add bookmark to list if list ID is configured
+	if kb.listID != "" {
+		kb.logger.Debug(fmt.Sprintf("Adding bookmark to list: %s", kb.listID), bookmark.Attrs()...)
+		if err := kb.karakeep.AddBookmarkToList(ctx, kb.listID, bookmark.Id); err != nil {
+			kb.logger.Error("Failed to add bookmark to list", bookmark.AttrsWithError(err)...)
+			return
+		}
+		kb.logger.Info("Added bookmark to list", append(bookmark.Attrs(), "list_id", kb.listID)...)
+	}
 
 	// Wait until bookmark tags are updated
 	kb.logger.Debug("Waiting for bookmark tags to be updated", bookmark.Attrs()...)
