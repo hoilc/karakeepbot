@@ -22,6 +22,9 @@ func main() {
 		logger.Debug(fmt.Sprintf("Loaded configuration from %s", config.Path))
 	}
 
+	// Log list_id configuration for debugging
+	logger.Debug(fmt.Sprintf("Karakeep List ID: %q", config.Karakeep.ListID))
+
 	// Setup karakeepbot
 	karakeepbot := karakeepbot.New(logger, config)
 

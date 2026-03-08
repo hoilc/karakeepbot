@@ -125,8 +125,12 @@ func New() *Config {
 	// See: https://github.com/knadh/koanf/issues/295
 	prefix := strings.ToUpper(AppName)
 	if err := k.Load(env.ProviderWithValue(prefix, ".", func(s string, v string) (string, any) {
-		// Strip out the prefix, lowercase and using . as key delimiter.
-		key := strings.ReplaceAll(strings.ToLower(strings.TrimPrefix(s, prefix+"_")), "_", ".")
+		// Strip out the prefix and lowercase
+		key := strings.ToLower(strings.TrimPrefix(s, prefix+"_"))
+		// Replace double underscores with a placeholder, then single underscores with dots, then restore
+		key = strings.ReplaceAll(key, "__", "\x00")
+		key = strings.ReplaceAll(key, "_", ".")
+		key = strings.ReplaceAll(key, "\x00", "_")
 		// Split comma-separated values into a slice.
 		if strings.Contains(v, ",") {
 			return key, strings.Split(v, ",")
