@@ -212,22 +212,41 @@ func (kb KarakeepBot) isThreadIdAllowed(threadId int) bool {
 	return len(kb.threads) == 0 || slices.Contains(kb.threads, threadId)
 }
 
+// getForwardSourceURL returns the source URL of a forwarded message.
+// For channels, it returns the message URL if the channel has a username.
+func getForwardSourceURL(msg TelegramMessage) string {
+	if msg.ForwardOrigin == nil {
+		return ""
+	}
+
+	if msg.ForwardOrigin.MessageOriginChannel != nil {
+		origin := msg.ForwardOrigin.MessageOriginChannel
+		if origin.Chat.Type == "channel" && origin.Chat.Username != "" {
+			return fmt.Sprintf("https://t.me/%s/%d", origin.Chat.Username, origin.MessageID)
+		}
+	}
+
+	return ""
+}
+
 // parseMessage parses the incoming Telegram message and returns the corresponding Bookmark type.
 func (kb KarakeepBot) parseMessage(ctx context.Context, msg TelegramMessage) (BookmarkType, error) {
+	sourceURL := getForwardSourceURL(msg)
+
 	switch {
 	case msg.Photo != nil:
-		return kb.handlePhotoMessage(ctx, msg)
+		return kb.handlePhotoMessage(ctx, msg, sourceURL)
 	case validation.ValidateURL(msg.Text) == nil:
 		return NewLinkBookmark(msg.Text), nil
 	case msg.Text != "":
-		return NewTextBookmark(msg.Text), nil
+		return NewTextBookmark(msg.Text, sourceURL), nil
 	default:
 		return nil, errors.New("unsupported bookmark type")
 	}
 }
 
 // handlePhotoMessage processes a message containing a photo.
-func (kb *KarakeepBot) handlePhotoMessage(ctx context.Context, msg TelegramMessage) (bookmark BookmarkType, err error) {
+func (kb *KarakeepBot) handlePhotoMessage(ctx context.Context, msg TelegramMessage, sourceURL string) (bookmark BookmarkType, err error) {
 	// Select the largest photo
 	photo := msg.Photo[len(msg.Photo)-1]
 	kb.logger.Debug("Handling Telegram image", "file_id", photo.FileID, "file_size", photo.FileSize)
@@ -277,5 +296,5 @@ func (kb *KarakeepBot) handlePhotoMessage(ctx context.Context, msg TelegramMessa
 	// Get note from caption
 	note := strings.TrimSpace(msg.Caption)
 
-	return NewAssetBookmark(asset.AssetId, ImageAssetType, note), nil
+	return NewAssetBookmark(asset.AssetId, ImageAssetType, note, sourceURL), nil
 }

@@ -49,15 +49,20 @@ func (lb LinkBookmark) String() string {
 // TextBookmark represents a bookmark with text content.
 type TextBookmark struct {
 	Bookmark
-	Text string `json:"text"`
+	Text      string  `json:"text"`
+	SourceUrl *string `json:"sourceUrl,omitempty"`
 }
 
-// NewTextBookmark creates a new TextBookmark with the given text content.
-func NewTextBookmark(text string) *TextBookmark {
-	return &TextBookmark{
+// NewTextBookmark creates a new TextBookmark with the given text content and optional source URL.
+func NewTextBookmark(text string, sourceUrl ...string) *TextBookmark {
+	tb := &TextBookmark{
 		Bookmark: Bookmark{Type: "text"},
 		Text:     text,
 	}
+	if len(sourceUrl) > 0 && sourceUrl[0] != "" {
+		tb.SourceUrl = &sourceUrl[0]
+	}
+	return tb
 }
 
 // String returns a human-readable representation of the TextBookmark.
@@ -72,10 +77,11 @@ type AssetBookmark struct {
 	AssetType AssetType `json:"assetType"`
 	Title     string    `json:"title,omitempty"`
 	Note      string    `json:"note,omitempty"`
+	SourceUrl *string   `json:"sourceUrl,omitempty"`
 }
 
 // NewAssetBookmark creates a new AssetBookmark for a given asset.
-func NewAssetBookmark(assetID string, assetType AssetType, note string) *AssetBookmark {
+func NewAssetBookmark(assetID string, assetType AssetType, note string, sourceUrl ...string) *AssetBookmark {
 	title := note
 
 	// Truncate title to avoid max length (https://github.com/karakeep-app/karakeep/commit/aecbe6ae8b3dbc7bcdcf33f1c8c086dafb77eb24#diff-18ac11cb95d04713123a9df4fb60e90f9ee5ecada941c2aa1b6f72eb1c8bb674R6-R136)
@@ -84,13 +90,17 @@ func NewAssetBookmark(assetID string, assetType AssetType, note string) *AssetBo
 		title = string(runes[:150]) + "..."
 	}
 
-	return &AssetBookmark{
+	ab := &AssetBookmark{
 		Bookmark:  Bookmark{Type: "asset"},
 		AssetID:   assetID,
 		AssetType: assetType,
 		Title:     title,
 		Note:      note,
 	}
+	if len(sourceUrl) > 0 && sourceUrl[0] != "" {
+		ab.SourceUrl = &sourceUrl[0]
+	}
+	return ab
 }
 
 // String returns a human-readable representation of the AssetBookmark.
